@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -28,20 +29,21 @@ public class UaaServiceImpl implements UaaService {
     @Override
     public LoginResponse signIn(LoginRequest loginRequest) {
         try {
-            var result = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-            );
-        } catch(BadCredentialsException e){
-            System.out.println("Bad credentials");
+            //sending username and password to Spring Authentication Manager
+            // Auth manager validate the userName and password by calling the method "loadUserByUserName"
+            // inside AwesomeUserDetailsService Class (this class is implementing UserDetails Service provide by spring)
+           Authentication authentication= authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            // if authenticated then it will call jwtHelper to get the token
+            final String accessToken = jwtHelper.generateToken(loginRequest.getEmail());
+            return new LoginResponse(accessToken, "");
+        } catch (BadCredentialsException e) {
+            return new LoginResponse("", "");
         }
-
-        final String accessToken = jwtHelper.generateToken(loginRequest.getEmail());
-        var loginResponse = new LoginResponse(accessToken,"");
-        return loginResponse;
     }
 
     @Override
-    public void signUp(UserDto userDto){
+    public void signUp(UserDto userDto) {
         //encode password to store in db
         String encoded = Base64.getEncoder().encodeToString(userDto.getPassword().getBytes());
         userDto.setPassword(encoded);
