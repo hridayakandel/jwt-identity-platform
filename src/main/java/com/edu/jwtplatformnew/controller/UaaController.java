@@ -6,13 +6,13 @@ import com.edu.jwtplatformnew.model.LoginResponse;
 import com.edu.jwtplatformnew.model.ValidateTokenResponse;
 import com.edu.jwtplatformnew.service.UaaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/uaa")
@@ -26,7 +26,7 @@ public class UaaController {
     public void signup(@RequestBody UserDto user){
         uaaService.signUp(user);
     }
-    @PostMapping("/signin")
+    @PostMapping(value = "/signin")
     public LoginResponse login(@RequestBody LoginRequest loginRequest){
         return uaaService.signIn(loginRequest);
     }
